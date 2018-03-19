@@ -143,7 +143,37 @@ public class PlantWidgetProvider extends AppWidgetProvider {
 
     }
 
+    /**
+     * Creates and returns the RemoteViews to be displayed in the GridView mode widget
+     *
+     * @param context The context
+     * @return The RemoteViews for the GridView mode widget
+     */
+    private static RemoteViews getGardenGridRemoteView(Context context) {
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_grid_view);
 
+        // Set the GridWidgetService intent to act as the adapter for the GridView
+        Intent intent = new Intent(context, GridWidgetService.class);
+        views.setRemoteAdapter(R.id.widget_grid_view, intent);
+        // Set the PlantDetailActivity intent to launch when clicked
+        Intent appIntent = new Intent(context, PlantDetailActivity.class);
+        PendingIntent appPendingIntent = PendingIntent.getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setPendingIntentTemplate(R.id.widget_grid_view, appPendingIntent);
+        // Handle empty gardens
+        views.setEmptyView(R.id.widget_grid_view, R.id.empty_view);
+        return views;
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
+                                          int appWidgetId, Bundle newOptions) {
+        PlantWateringService.startActionUpdatePlantWidgets(context);
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+
+    }
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
